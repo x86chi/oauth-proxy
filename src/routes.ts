@@ -1,10 +1,29 @@
 import { Request, Response } from 'express'
 import dotenv from 'dotenv'
 
-dotenv.config()
+import axios, { AxiosResponse } from 'axios'
 
-const expectBody = process.env.expectBody!
+import 'dotenv/config'
 
-export const login = (_: Request, res: Response) => {
-  res.status(200).send(expectBody)
+interface Req extends Request {
+  body: { code: string }
+}
+
+interface Env extends NodeJS.ProcessEnv {
+  clientID: string
+  clientSecret: string
+}
+
+const { clientID, clientSecret } = process.env as Env
+
+export const getToken = async (req: Req, res: Response) => {
+  const { code } = req.body
+  const { data: access_token } = (await axios({
+    method: 'post',
+    url: `https://github.com/login/oauth/access_token?client_id=${clientID}&client_secret=${clientSecret}&code=${code}`,
+    headers: {
+      accept: 'application/json',
+    },
+  })) as AxiosResponse<{ access_token: string }>
+  res.send(access_token).end()
 }
