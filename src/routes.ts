@@ -25,5 +25,8 @@ export const getToken = async (req: Req, res: Response) => {
       accept: 'application/json',
     },
   })) as AxiosResponse<{ access_token: string }>
-  res.send(access_token).end()
+  res
+    .status(201)
+    .send(access_token)
+    .end()
 }
